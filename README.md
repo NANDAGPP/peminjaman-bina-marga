@@ -6,7 +6,7 @@
 [![Vite](https://img.shields.io/badge/Vite-Build%20Tool-646CFF?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v4-38B2AC?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Tests](https://img.shields.io/badge/Vitest-100%25%20Passed%20(16%20suites)-4CAF50?style=flat&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Tests](https://img.shields.io/badge/Vitest-100%25%20Passed%20(19%20suites%20--%20116%20tests)-4CAF50?style=flat&logo=vitest&logoColor=white)](https://vitest.dev/)
 
 Aplikasi web modern untuk tata kelola reservasi, peminjaman kendaraan dan ruangan dinas, serta pelaporan pengaduan kendala fasilitas di lingkungan **Dinas Pekerjaan Umum Bina Marga Provinsi Jawa Timur**.
 
@@ -62,7 +62,7 @@ Aplikasi web modern untuk tata kelola reservasi, peminjaman kendaraan dan ruanga
   * Penanganan otomatis kedaluwarsa token (HTTP 419 retry & auto-refresh token).
   * Hash password aman menggunakan `password_hash()` BCRYPT.
 * **Testing & Quality Assurance**:
-  * Vitest + React Testing Library (100 tes unit & integrasi terverifikasi lulus).
+  * Vitest + React Testing Library (116 tes unit & integrasi terverifikasi lulus di 19 test suites).
   * Oxlint untuk validasi kode bersih.
 
 ---

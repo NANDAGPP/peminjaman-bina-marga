@@ -59,11 +59,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
                 key={item.id}
                 type="button"
                 onClick={() => onNavigate(item.id)}
-                className={`w-full flex items-center gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[13px] sm:text-[13.5px] font-extrabold transition-all cursor-pointer select-none active:scale-[0.98] ${
-                  isActive
+                className={`w-full flex items-center gap-3 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[13px] sm:text-[13.5px] font-extrabold transition-all cursor-pointer select-none active:scale-[0.98] ${isActive
                     ? "bg-[#fed000] text-[#071d63] shadow-xs"
                     : "text-[#071d63] hover:bg-gray-100/70"
-                }`}
+                  }`}
               >
                 <img
                   src={item.icon}

@@ -14,7 +14,12 @@ export const LogoutModal: React.FC<LogoutModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Konfirmasi Keluar"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
+    >
       <div className="relative w-full max-w-[560px] bg-[#071d63] rounded-[32px] shadow-2xl p-8 sm:p-10 flex flex-col items-center text-center">
         {/* Illustration */}
         <div className="w-full max-w-[340px] h-48 flex items-center justify-center mb-6 overflow-hidden">

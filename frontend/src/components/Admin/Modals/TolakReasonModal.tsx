@@ -10,6 +10,8 @@ interface TolakReasonModalProps {
 
 export const TolakReasonModal: React.FC<TolakReasonModalProps> = ({
   isOpen,
+  title = "Detail Penolakan",
+  message = "Pilih 1 alasan penolakan pengajuan",
   onConfirm,
   onClose,
 }) => {
@@ -30,13 +32,18 @@ export const TolakReasonModal: React.FC<TolakReasonModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200"
+    >
       <div className="relative w-full max-w-[620px] bg-white rounded-[28px] shadow-2xl p-6 sm:p-10 border border-gray-100">
         <h3 className="text-2xl sm:text-3xl font-black text-black text-center mb-1.5">
-          Detail Penolakan
+          {title}
         </h3>
         <p className="text-sm sm:text-base text-gray-700 text-center mb-8 font-normal">
-          Pilih 1 alasan penolakan pengajuan
+          {message}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8">
