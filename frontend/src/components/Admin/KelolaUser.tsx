@@ -593,6 +593,41 @@ export const KelolaUser: React.FC<KelolaUserProps> = ({
             : `Apakah Anda yakin ingin mencabut status Admin dari "${userToModifyRole?.nama}"? Pegawai akan kembali menjadi akun pegawai biasa.`
         }
         confirmText={roleActionType === "promote" ? "Jadikan Admin" : "Cabut Hak Akses"}
+        icon={
+          roleActionType === "promote" ? (
+            <div className="w-20 h-20 mb-3 rounded-full bg-blue-50 border-4 border-blue-100 flex items-center justify-center text-[#071d63] shadow-sm">
+              <svg
+                className="w-10 h-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+          ) : (
+            <div className="w-20 h-20 mb-3 rounded-full bg-amber-50 border-4 border-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
+              <svg
+                className="w-10 h-10"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                />
+              </svg>
+            </div>
+          )
+        }
         onConfirm={handleConfirmRoleChange}
         onClose={() => setRoleModalOpen(false)}
       />
