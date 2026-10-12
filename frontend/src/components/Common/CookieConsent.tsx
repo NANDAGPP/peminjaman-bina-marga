@@ -41,9 +41,9 @@ export const CookieConsent: React.FC = () => {
     <div
       role="region"
       aria-label="Persetujuan Cookie"
-      className="fixed bottom-4 left-4 right-4 sm:left-6 sm:right-auto sm:max-w-[480px] z-[9990] animate-in fade-in slide-in-from-bottom-5 duration-300"
+      className="fixed inset-x-0 bottom-6 flex justify-center px-4 z-[9990] pointer-events-none"
     >
-      <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.12)] p-4 sm:p-5 text-gray-800">
+      <div className="w-full max-w-[520px] pointer-events-auto bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-[0_16px_50px_rgba(0,0,0,0.18)] p-4 sm:p-5 text-gray-800 animate-in fade-in slide-in-from-bottom-5 duration-300">
         <div className="flex items-start gap-3.5">
           {/* Cookie Icon with Soft Glow */}
           <div className="w-10 h-10 rounded-xl bg-[#fed000]/20 border border-[#fed000]/40 flex items-center justify-center shrink-0 text-xl shadow-xs">
