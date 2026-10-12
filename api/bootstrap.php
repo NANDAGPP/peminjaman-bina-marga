@@ -17,29 +17,69 @@ define('API_CONTEXT', true);
 
 /**
  * Origin yang boleh memanggil API, diatur lewat ALLOWED_ORIGINS (dipisah koma).
- * Contoh: ALLOWED_ORIGINS="https://binamarga.vercel.app,http://localhost:5173"
+ * Contoh: ALLOWED_ORIGINS="https://peminjaman-binamarga.vercel.app,http://localhost:5173"
  */
 function allowed_origins()
 {
-    $configured = getenv('ALLOWED_ORIGINS') ?: 'http://localhost:5173';
+    $configured = getenv('ALLOWED_ORIGINS') ?: '';
+    if ($configured !== '') {
+        return array_values(array_filter(array_map('trim', explode(',', $configured))));
+    }
 
-    return array_values(array_filter(array_map('trim', explode(',', $configured))));
+    return ['http://localhost:5173', 'http://127.0.0.1:5173'];
 }
 
 /**
- * Header CORS hanya dikirim untuk origin yang terdaftar, tidak memantulkan
- * Origin apa pun. Preflight dijawab di sini.
+ * Verifikasi apakah origin diizinkan (mendukung custom domain, vercel preview, dan localhost dev)
+ */
+function is_origin_allowed(string $origin): bool
+{
+    if ($origin === '') {
+        return true;
+    }
+
+    $allowedList = allowed_origins();
+    if (in_array($origin, $allowedList, true)) {
+        return true;
+    }
+
+    // Izinkan same-host jika aplikasi diakses dari domain yang sama
+    $currentHost = $_SERVER['HTTP_HOST'] ?? '';
+    if ($currentHost !== '') {
+        if ($origin === "https://{$currentHost}" || $origin === "http://{$currentHost}") {
+            return true;
+        }
+    }
+
+    // Izinkan subdomain vercel.app resmi (deployment & preview)
+    if (preg_match('/^https:\/\/[a-zA-Z0-9_\-]+\.vercel\.app$/', $origin)) {
+        return true;
+    }
+
+    // Izinkan localhost / 127.0.0.1 pada port dev umum (5173, 3000, 4173, 8080)
+    if (preg_match('/^http:\/\/(localhost|127\.0\.0\.1)(:[0-9]{2,5})?$/', $origin)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Header CORS & Security Headers defensif
  */
 function apply_cors_headers()
 {
     header('Content-Type: application/json; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
-    header('Referrer-Policy: same-origin');
+    header('X-Frame-Options: SAMEORIGIN');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     header('Vary: Origin');
 
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-    if ($origin !== '' && in_array($origin, allowed_origins(), true)) {
+    if ($origin !== '' && is_origin_allowed($origin)) {
         header("Access-Control-Allow-Origin: {$origin}");
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -48,7 +88,7 @@ function apply_cors_headers()
     }
 
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
-        http_response_code($origin === '' || in_array($origin, allowed_origins(), true) ? 204 : 403);
+        http_response_code($origin === '' || is_origin_allowed($origin) ? 204 : 403);
         exit;
     }
 }

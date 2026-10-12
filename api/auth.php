@@ -69,6 +69,9 @@ function auth_start_session($role, array $row)
         unset($_SESSION['admin'], $_SESSION['username_admin'], $_SESSION['admin_role']);
     }
 
+    $_SESSION['_last_activity_time']  = time();
+    $_SESSION['_session_created_time'] = time();
+
     return rotate_csrf_token();
 }
 
@@ -266,30 +269,32 @@ function handle_logout()
     $role  = $_GET['role'] ?? ($input['role'] ?? 'all');
 
     if ($role === 'admin') {
-        unset($_SESSION['admin'], $_SESSION['username_admin']);
-        api_success([], 'Logout admin berhasil.');
-    }
-
-    if ($role === 'user') {
+        unset($_SESSION['admin'], $_SESSION['username_admin'], $_SESSION['admin_role']);
+    } elseif ($role === 'user') {
         unset($_SESSION['id_user'], $_SESSION['username_user']);
-        api_success([], 'Logout user berhasil.');
+    } else {
+        $_SESSION = [];
     }
 
-    $_SESSION = [];
-
-    if (ini_get('session.use_cookies')) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', [
-            'expires'  => time() - 42000,
-            'path'     => $params['path'],
-            'domain'   => $params['domain'],
-            'secure'   => $params['secure'],
-            'httponly' => $params['httponly'],
-            'samesite' => $params['samesite'] ?? 'Lax',
-        ]);
+    // Jika sudah tidak ada peran aktif, bersihkan seluruh sesi dan cookie
+    if (empty($_SESSION['admin']) && empty($_SESSION['id_user'])) {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', [
+                'expires'  => time() - 42000,
+                'path'     => $params['path'],
+                'domain'   => $params['domain'],
+                'secure'   => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]);
+        }
+        @session_destroy();
+    } else {
+        rotate_csrf_token();
     }
 
-    session_destroy();
     api_success([], 'Logout berhasil.');
 }
 

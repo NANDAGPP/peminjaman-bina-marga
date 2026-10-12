@@ -150,7 +150,41 @@ try {
     if (!$hasFas) {
         $pdo->exec("ALTER TABLE ruangan ADD COLUMN fasilitas VARCHAR(255) DEFAULT 'AC, Proyektor, Sound System, Meja & Kursi'");
     }
+    // Auto-check & pastikan tabel sessions dan login_attempts tersedia (Multi-Driver)
+    if ($driver === 'pgsql') {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS sessions (
+                id VARCHAR(128) PRIMARY KEY,
+                data TEXT NOT NULL,
+                last_activity BIGINT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_sessions_last_activity ON sessions (last_activity);
+
+            CREATE TABLE IF NOT EXISTS login_attempts (
+                id SERIAL PRIMARY KEY,
+                ip_address VARCHAR(45) NOT NULL,
+                attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts (ip_address, attempted_at);
+        ");
+    } else {
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS `sessions` (
+                `id` VARCHAR(128) NOT NULL PRIMARY KEY,
+                `data` MEDIUMTEXT NOT NULL,
+                `last_activity` BIGINT NOT NULL,
+                INDEX `idx_sessions_last_activity` (`last_activity`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+            CREATE TABLE IF NOT EXISTS `login_attempts` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `ip_address` VARCHAR(45) NOT NULL,
+                `attempted_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX `idx_login_attempts_ip` (`ip_address`, `attempted_at`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+        ");
+    }
 } catch (Throwable $e) {
-    // Jika tabel belum ada, akan dibuat oleh script instalasi
+    // Jika tabel belum ada atau permission terbatas, ditangani graceful
 }
 

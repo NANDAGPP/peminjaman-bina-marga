@@ -1,25 +1,29 @@
 <?php
 /**
  * ============================================================
- * Auth Guard — Session Protection & CSRF Token
+ * Auth Guard — Session Protection, CSRF Token & Security Layer
  * ============================================================
- * Include file ini di awal setiap halaman yang butuh proteksi.
+ * Melindungi sesi aplikasi, mencegah Session Fixation, Session Hijacking,
+ * CSRF Attack, Brute Force Rate Limiting, dan Cross-Site Scripting (XSS).
  *
- * Usage:
- *   require_once 'auth_guard.php';
- *   require_admin();   // Untuk halaman admin
- *   require_user();    // Untuk halaman user
+ * Mendukung PostgreSQL & MySQL dengan penanganan fail-safe di Vercel / serverless.
  */
 
+// Konfigurasi ketat PHP Session Engine sebelum session_start
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.cookie_httponly', '1');
+    ini_set('session.gc_maxlifetime', '7200'); // 2 jam
+
     // Pakai SESSION_SAMESITE=None bila frontend dan API berada di domain berbeda.
-    // Browser hanya menerima None bila cookie juga Secure.
+    // Browser hanya menerima None bila cookie juga Secure (HTTPS).
     $sameSite = getenv('SESSION_SAMESITE') ?: 'Lax';
     $isHttps  = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
         || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
 
     session_set_cookie_params([
-        'lifetime' => 0,
+        'lifetime' => 0, // Sesi cookie browser
         'path'     => '/',
         'secure'   => $isHttps || $sameSite === 'None',
         'httponly' => true,
@@ -36,6 +40,45 @@ if (session_status() === PHP_SESSION_NONE) {
     }
 
     session_start();
+
+    // 1. Inactivity (Idle) Timeout Enforcement: 2 Jam (7200 Detik)
+    $idleLimit = 7200;
+    if (isset($_SESSION['_last_activity_time']) && (time() - $_SESSION['_last_activity_time'] > $idleLimit)) {
+        $_SESSION = [];
+        if (ini_get('session.use_cookies')) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+        }
+        session_destroy();
+        session_start();
+    }
+    $_SESSION['_last_activity_time'] = time();
+
+    // 2. Periodic Session ID Regeneration: Rotasi ID setiap 30 menit untuk sesi aktif panjang
+    if (!isset($_SESSION['_session_created_time'])) {
+        $_SESSION['_session_created_time'] = time();
+    } elseif (time() - $_SESSION['_session_created_time'] > 1800) {
+        session_regenerate_id(true);
+        $_SESSION['_session_created_time'] = time();
+    }
+
+    // 3. Session Fingerprint Guard (Mitigasi Session Hijacking antar perangkat)
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'standard_client';
+    $clientSubnet = substr(client_ip(), 0, 7); // Mengizinkan rotasi IP dinamis dalam subnet lokal
+    $clientFingerprint = hash('sha256', $ua . '|' . $clientSubnet);
+
+    if (!isset($_SESSION['_client_fingerprint'])) {
+        $_SESSION['_client_fingerprint'] = $clientFingerprint;
+    } elseif (!hash_equals($_SESSION['_client_fingerprint'], $clientFingerprint)) {
+        // Jika fingerprint berbeda secara ekstrem (indikasi pencurian cookie ke browser berbeda)
+        error_log('[Security Guard] Sesi dihentikan karena anomali fingerprint perangkat pemohon.');
+        $_SESSION = [];
+        session_destroy();
+        session_start();
+        $_SESSION['_client_fingerprint'] = $clientFingerprint;
+        $_SESSION['_session_created_time'] = time();
+        $_SESSION['_last_activity_time'] = time();
+    }
 }
 
 /**
@@ -222,7 +265,7 @@ function get_flash()
 function verify_password_hash($inputPassword, $storedHash)
 {
     if (empty($storedHash)) {
-        // Verifikasi dummy supaya waktu respons akun tidak ada dan akun ada tetap mirip.
+        // Verifikasi dummy supaya waktu respons akun tidak ada dan akun ada tetap mirip (anti timing attack).
         password_verify($inputPassword, '$2y$10$usesomesillystringfore7hnbRJHxXVLeakoG8K30M1MlGnPy');
         return false;
     }
@@ -259,7 +302,7 @@ function rehash_password_if_needed($pdo, $account, $id, $plainPassword, $storedH
 }
 
 // ============================================================
-// Login Rate Limiting
+// Login Rate Limiting (Cross-Database: PostgreSQL & MySQL)
 // ============================================================
 
 define('LOGIN_ATTEMPT_WINDOW_MINUTES', 15);
@@ -267,8 +310,7 @@ define('LOGIN_MAX_ATTEMPTS', 8);
 
 /**
  * IP pemanggil. X-Forwarded-For hanya dipakai di belakang proxy tepercaya
- * (TRUSTED_PROXY=1, atau Vercel yang selalu menimpa header tersebut),
- * karena di luar itu header ini mudah dipalsukan.
+ * (TRUSTED_PROXY=1, atau Vercel yang selalu menimpa header tersebut).
  */
 function client_ip()
 {
@@ -286,30 +328,68 @@ function client_ip()
 }
 
 /**
+ * Memastikan tabel login_attempts tersedia baik di PostgreSQL maupun MySQL
+ */
+function ensure_login_attempts_table($pdo)
+{
+    static $ready = false;
+    if ($ready) return;
+
+    try {
+        $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) ?: 'pgsql';
+        if ($driver === 'pgsql') {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS login_attempts (
+                    id SERIAL PRIMARY KEY,
+                    ip_address VARCHAR(45) NOT NULL,
+                    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE INDEX IF NOT EXISTS idx_login_attempts_ip ON login_attempts (ip_address, attempted_at);
+            ");
+        } else {
+            $pdo->exec("
+                CREATE TABLE IF NOT EXISTS `login_attempts` (
+                    `id` INT AUTO_INCREMENT PRIMARY KEY,
+                    `ip_address` VARCHAR(45) NOT NULL,
+                    `attempted_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX `idx_login_attempts_ip` (`ip_address`, `attempted_at`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ");
+        }
+        $ready = true;
+    } catch (Throwable $e) {
+        // Abaikan jika sudah ada
+    }
+}
+
+/**
  * Cek apakah IP sudah melampaui batas percobaan login dalam rentang waktu aktif.
  */
 function check_login_rate_limit($pdo)
 {
+    ensure_login_attempts_table($pdo);
     $ip     = client_ip();
     $window = LOGIN_ATTEMPT_WINDOW_MINUTES;
 
     try {
-        $pdo->prepare(
-            "DELETE FROM login_attempts
-             WHERE attempted_at < NOW() - INTERVAL '{$window} minutes'"
-        )->execute();
+        $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME) ?: 'pgsql';
+        
+        // Kompatibilitas query interval antara PostgreSQL & MySQL
+        if ($driver === 'pgsql') {
+            $cleanQuery = "DELETE FROM login_attempts WHERE attempted_at < NOW() - INTERVAL '{$window} minutes'";
+            $countQuery = "SELECT COUNT(*) AS total FROM login_attempts WHERE ip_address = :ip AND attempted_at > NOW() - INTERVAL '{$window} minutes'";
+        } else {
+            $cleanQuery = "DELETE FROM login_attempts WHERE attempted_at < DATE_SUB(NOW(), INTERVAL {$window} MINUTE)";
+            $countQuery = "SELECT COUNT(*) AS total FROM login_attempts WHERE ip_address = :ip AND attempted_at > DATE_SUB(NOW(), INTERVAL {$window} MINUTE)";
+        }
 
-        $stmt = $pdo->prepare(
-            "SELECT COUNT(*) AS total
-             FROM login_attempts
-             WHERE ip_address = :ip
-               AND attempted_at > NOW() - INTERVAL '{$window} minutes'"
-        );
+        $pdo->prepare($cleanQuery)->execute();
+
+        $stmt = $pdo->prepare($countQuery);
         $stmt->execute([':ip' => $ip]);
 
         return (int)($stmt->fetch()['total'] ?? 0) < LOGIN_MAX_ATTEMPTS;
     } catch (PDOException $e) {
-        // Kalau tabelnya bermasalah, pencatatan percobaan juga ikut gagal.
         error_log('Rate limit check error: ' . $e->getMessage());
         return true;
     }
@@ -320,6 +400,7 @@ function check_login_rate_limit($pdo)
  */
 function record_login_attempt($pdo)
 {
+    ensure_login_attempts_table($pdo);
     try {
         $stmt = $pdo->prepare('INSERT INTO login_attempts (ip_address) VALUES (:ip)');
         $stmt->execute([':ip' => client_ip()]);
@@ -333,6 +414,7 @@ function record_login_attempt($pdo)
  */
 function clear_login_attempts($pdo)
 {
+    ensure_login_attempts_table($pdo);
     try {
         $stmt = $pdo->prepare('DELETE FROM login_attempts WHERE ip_address = :ip');
         $stmt->execute([':ip' => client_ip()]);
