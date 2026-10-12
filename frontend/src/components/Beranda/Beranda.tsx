@@ -346,15 +346,15 @@ export const Beranda: React.FC<BerandaProps> = ({
         <div className="w-full max-w-[1050px] mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Footer Left: Brand & Quote */}
           <div className="md:col-span-5 flex flex-col">
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3.5 mb-6">
               <img
-                src="/images/logobina.png"
-                alt="Logo Dinas PU Bina Marga"
+                src="/images/sipina_logo_cropped.png"
+                alt="Logo SIPINA"
                 className="h-11 w-auto object-contain shrink-0"
               />
-              <div className="flex flex-col text-white font-bold text-[10.5px] sm:text-[11px] leading-tight tracking-tight uppercase">
-                <span>Dinas Pekerjaan Umum Bina Marga</span>
-                <span>Provinsi Jawa Timur</span>
+              <div className="flex flex-col text-white font-bold leading-tight tracking-tight uppercase">
+                <span className="text-sm font-black text-white">SIPINA</span>
+                <span className="text-[10px] text-gray-300">SISTEM PEMINJAMAN SARANA & PRASARANA</span>
               </div>
             </div>
 
@@ -372,7 +372,7 @@ export const Beranda: React.FC<BerandaProps> = ({
           {/* Footer Middle: Contact Info */}
           <div className="md:col-span-5 flex flex-col">
             <h3 className="text-sm sm:text-[15px] font-bold text-white mb-4">
-              Alamat Kontak
+              Alamat Kontak SIPINA
             </h3>
             <ul className="space-y-3.5 text-[11px] sm:text-xs text-gray-200 leading-relaxed font-light">
               <li className="flex items-start gap-3">
@@ -384,7 +384,7 @@ export const Beranda: React.FC<BerandaProps> = ({
                   <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
                 <span>
-                  Jl. Gayung Kebonsari No.167, Gayungan, Kec. Gayungan, Surabaya, Jawa Timur 60235
+                  Layanan SIPINA - Jl. Gayung Kebonsari No.167, Gayungan, Kec. Gayungan, Surabaya, Jawa Timur 60235
                 </span>
               </li>
               <li className="flex items-center gap-3">
@@ -401,7 +401,7 @@ export const Beranda: React.FC<BerandaProps> = ({
                   rel="noopener noreferrer"
                   className="hover:underline hover:text-white transition-colors"
                 >
-                  031-8290186, 8280433 (WA)
+                  WA SIPINA: 031-8290186, +62-896-1254-8511
                 </a>
               </li>
               <li className="flex items-center gap-3">
@@ -414,10 +414,10 @@ export const Beranda: React.FC<BerandaProps> = ({
                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                 </svg>
                 <a
-                  href="mailto:binamarga@jatimprov.go.id"
+                  href="mailto:sipina@jatimprov.go.id"
                   className="hover:underline hover:text-white transition-colors"
                 >
-                  binamarga@jatimprov.go.id
+                  sipina@jatimprov.go.id
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -444,10 +444,10 @@ export const Beranda: React.FC<BerandaProps> = ({
           {/* Footer Right: Social Media */}
           <div className="md:col-span-2 flex flex-row md:flex-col justify-start md:justify-center items-center md:items-end gap-3.5 pt-2">
             {[
-              { name: "X", icon: x, url: "https://x.com/dbmjatim" },
-              { name: "Instagram", icon: instagram, url: "https://www.instagram.com/binamargajatim?stkn=ZmMxcWYzbTB3Zjl1" },
-              { name: "YouTube", icon: youTube, url: "https://youtube.com/@dbmjatim?si=qIWAAk8L5fMt3QQs" },
-              { name: "Facebook", icon: facebook, url: "https://www.facebook.com/share/1EKHfjwTXG/" },
+              { name: "X", icon: x, url: "https://x.com/sipina_jatim" },
+              { name: "Instagram", icon: instagram, url: "https://www.instagram.com/sipina_jatim" },
+              { name: "YouTube", icon: youTube, url: "https://youtube.com/@sipina_jatim" },
+              { name: "Facebook", icon: facebook, url: "https://www.facebook.com/sipina.jatim" },
             ].map((item) => (
               <a
                 key={item.name}
@@ -470,9 +470,9 @@ export const Beranda: React.FC<BerandaProps> = ({
         {/* Divider and Copyright */}
         <div className="w-full max-w-[650px] mx-auto border-t border-gray-600/70 mt-10 mb-4" />
         <div className="w-full max-w-[1050px] mx-auto text-center text-[11px] text-gray-300 font-light">
-          Copyright &copy; 2026 |{" "}
+          Copyright &copy; {new Date().getFullYear()} |{" "}
           <span className="underline underline-offset-2">
-            Dinas PU Bina Marga Provisi Jawa Timur
+            SIPINA - Sistem Peminjaman Sarana dan Prasarana
           </span>
           . All rights reserved
         </div>

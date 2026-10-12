@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { ASSETS_DATA, Asset, fetchDynamicAssets } from "./assetData";
+import { ASSETS_DATA, Asset, fetchDynamicAssets, getStoredAssets } from "./assetData";
 import { AssetCard } from "./AssetCard";
 import { BookingCalendarModal } from "./BookingCalendarModal";
 import { StatusPopupModal } from "./StatusPopupModal";
@@ -17,7 +17,7 @@ export const PeminjamanAset: React.FC<PeminjamanAsetProps> = ({
   onSuccess,
   onViewDetail,
 }) => {
-  const [allAssets, setAllAssets] = useState<Asset[]>(ASSETS_DATA);
+  const [allAssets, setAllAssets] = useState<Asset[]>(() => getStoredAssets());
   const [activeFilter, setActiveFilter] = useState<
     "semua" | "tersedia" | "dipinjam" | "maintenance"
   >("semua");
@@ -30,11 +30,23 @@ export const PeminjamanAset: React.FC<PeminjamanAsetProps> = ({
   >(null);
 
   useEffect(() => {
-    fetchDynamicAssets().then((data) => {
-      if (Array.isArray(data) && data.length > 0) {
-        setAllAssets(data);
-      }
-    });
+    const refreshAssets = () => {
+      fetchDynamicAssets().then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setAllAssets(data);
+        } else {
+          setAllAssets(getStoredAssets());
+        }
+      });
+    };
+    refreshAssets();
+
+    window.addEventListener("assetsUpdated", refreshAssets);
+    window.addEventListener("storage", refreshAssets);
+    return () => {
+      window.removeEventListener("assetsUpdated", refreshAssets);
+      window.removeEventListener("storage", refreshAssets);
+    };
   }, []);
 
 
@@ -83,18 +95,18 @@ export const PeminjamanAset: React.FC<PeminjamanAsetProps> = ({
   return (
     <div className="min-h-screen w-full bg-white flex flex-col font-sans selection:bg-[#fed000] selection:text-[#071d63]">
       <header className="w-full max-w-[1340px] mx-auto px-4 sm:px-8 pt-8 pb-2">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3.5 mb-6">
           <img
-            src="/images/logobina.png"
-            alt="Logo DPU Bina Marga"
-            className="h-12 w-auto object-contain"
+            src="/images/sipina_logo_cropped.png"
+            alt="Logo SIPINA"
+            className="h-12 w-auto object-contain shrink-0"
           />
           <div className="flex flex-col justify-center">
-            <span className="text-[13px] font-black tracking-wider text-[#071d63] uppercase leading-tight">
-              DINAS PEKERJAAN UMUM BINA MARGA
+            <span className="text-[15px] font-black tracking-wider text-[#071d63] uppercase leading-tight">
+              SIPINA
             </span>
             <span className="text-[11px] text-[#071d63] font-extrabold tracking-wider uppercase leading-tight">
-              PROVINSI JAWA TIMUR
+              SISTEM PEMINJAMAN SARANA & PRASARANA
             </span>
           </div>
         </div>

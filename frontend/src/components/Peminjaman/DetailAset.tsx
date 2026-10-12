@@ -60,7 +60,12 @@ export const DetailAset: React.FC<DetailAsetProps> = ({
       <div className="w-full bg-[#222222] text-white text-xs sm:text-sm py-3 px-4 sm:px-8 border-b border-gray-800">
         <div className="max-w-[1280px] mx-auto flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap items-center gap-4 sm:gap-8">
-            <span className="text-gray-300 font-medium">binamargajawatimur@gmail.com</span>
+            <a
+              href="mailto:sipina@jatimprov.go.id"
+              className="text-gray-300 hover:text-[#fed000] font-medium transition-colors"
+            >
+              sipina@jatimprov.go.id
+            </a>
             <span className="hidden sm:inline text-gray-500">|</span>
             <a
               href="https://wa.me/6289612548511"
@@ -68,7 +73,7 @@ export const DetailAset: React.FC<DetailAsetProps> = ({
               rel="noreferrer"
               className="text-gray-300 hover:text-[#fed000] font-medium transition-colors"
             >
-              WA : +62-896-1254-8511
+              WA SIPINA : +62-896-1254-8511
             </a>
             <span className="hidden sm:inline text-gray-500">|</span>
             <a
@@ -77,43 +82,43 @@ export const DetailAset: React.FC<DetailAsetProps> = ({
               rel="noreferrer"
               className="text-gray-300 hover:text-[#fed000] font-medium transition-colors"
             >
-              WA : +62-812-3456-7890
+              CS SIPINA : +62-812-3456-7890
             </a>
           </div>
 
           <div className="flex items-center gap-5 sm:gap-6">
             <span className="hidden sm:inline text-gray-500 mr-2">|</span>
-            <a href="https://x.com/dbmjatim" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+            <a href="https://x.com/sipina_jatim" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
               <img src="/images/twitter.png" alt="X" className="w-4 h-4 object-contain brightness-0 invert" />
             </a>
-            <a href="https://www.instagram.com/binamargajatim?stkn=ZmMxcWYzbTB3Zjl1" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+            <a href="https://www.instagram.com/sipina_jatim" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
               <img src="/images/instagram.png" alt="Instagram" className="w-4 h-4 object-contain brightness-0 invert" />
             </a>
-            <a href="https://youtube.com/@dbmjatim?si=qIWAAk8L5fMt3QQs" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+            <a href="https://youtube.com/@sipina_jatim" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
               <img src="/images/youtube.png" alt="YouTube" className="w-4 h-4 object-contain brightness-0 invert" />
             </a>
-            <a href="https://www.facebook.com/share/1EKHfjwTXG/" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
+            <a href="https://www.facebook.com/sipina.jatim" target="_blank" rel="noreferrer" className="hover:opacity-80 transition-opacity">
               <img src="/images/facebook.png" alt="Facebook" className="w-4 h-4 object-contain brightness-0 invert" />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Sub Header with DPU Bina Marga Logo */}
+      {/* Sub Header with SIPINA Logo */}
       <div className="w-full bg-white border-b border-gray-100 py-3.5 px-6 sm:px-12">
         <div className="max-w-[1280px] mx-auto flex items-center">
           <div className="flex items-center gap-3.5">
             <img
-              src="/images/logobina.png"
-              alt="Logo DPU Bina Marga"
-              className="h-11 sm:h-12 w-auto object-contain"
+              src="/images/sipina_logo_cropped.png"
+              alt="Logo SIPINA"
+              className="h-11 sm:h-12 w-auto object-contain shrink-0"
             />
-            <div className="flex flex-col">
-              <span className="text-xs sm:text-[13px] font-bold tracking-tight text-[#071d63] uppercase leading-tight">
-                DINAS PEKERJAAN UMUM BINA MARGA
+            <div className="flex flex-col justify-center">
+              <span className="text-base sm:text-lg font-black tracking-wider text-[#071d63] uppercase leading-tight">
+                SIPINA
               </span>
-              <span className="text-xs sm:text-[13px] font-bold tracking-tight text-[#071d63] uppercase leading-tight">
-                PROVINSI JAWA TIMUR
+              <span className="text-[11px] text-[#071d63] font-extrabold tracking-wider uppercase leading-tight">
+                SISTEM PEMINJAMAN SARANA & PRASARANA
               </span>
             </div>
           </div>

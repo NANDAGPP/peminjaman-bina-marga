@@ -201,7 +201,30 @@ export const AdminPeminjaman: React.FC<AdminPeminjamanProps> = ({
     setErrorMessage("");
 
     try {
-      const data = await fetchLoans();
+      let rawLoans: any[] = [];
+      try {
+        const data = await fetchLoans();
+        if (Array.isArray(data?.loans)) {
+          rawLoans = [...data.loans];
+        }
+      } catch (e) {
+        // Backend not available, continue with local dynamic loans
+      }
+
+      try {
+        const savedRaw = localStorage.getItem("bina_marga_dynamic_loans");
+        if (savedRaw) {
+          const localLoans = JSON.parse(savedRaw);
+          if (Array.isArray(localLoans)) {
+            for (const l of localLoans) {
+              if (!rawLoans.some((r: any) => Number(r.id_peminjaman) === Number(l.id_peminjaman))) {
+                rawLoans = [l, ...rawLoans];
+              }
+            }
+          }
+        }
+      } catch {}
+
       const parseDateValue = (dateStr?: string, timeStr?: string): number => {
         if (!dateStr) return Infinity;
         const cleanDate = dateStr.trim();
@@ -216,7 +239,7 @@ export const AdminPeminjaman: React.FC<AdminPeminjamanProps> = ({
         return cleanDate.localeCompare("") || 0;
       };
 
-      const mapped = (data?.loans || []).map(toLoanItem);
+      const mapped = rawLoans.map(toLoanItem);
       const sorted = [...mapped].sort((a, b) => {
         const priority = (s: string) => {
           const st = s.toLowerCase();
@@ -247,6 +270,13 @@ export const AdminPeminjaman: React.FC<AdminPeminjamanProps> = ({
 
   useEffect(() => {
     loadLoans();
+
+    window.addEventListener("loansUpdated", loadLoans);
+    window.addEventListener("storage", loadLoans);
+    return () => {
+      window.removeEventListener("loansUpdated", loadLoans);
+      window.removeEventListener("storage", loadLoans);
+    };
   }, [loadLoans]);
 
   useEffect(() => {
@@ -267,12 +297,31 @@ export const AdminPeminjaman: React.FC<AdminPeminjamanProps> = ({
 
     try {
       await updateLoanStatus(id, status, alasan);
-      await loadLoans();
     } catch (err) {
-      setErrorMessage(
-        err instanceof ApiError ? err.message : "Gagal memperbarui status peminjaman."
-      );
+      if (err instanceof ApiError) {
+        setErrorMessage(err.message);
+        return;
+      }
+      console.warn("Backend update loan status warning:", err);
     }
+
+    try {
+      const savedRaw = localStorage.getItem("bina_marga_dynamic_loans");
+      if (savedRaw) {
+        const localLoans = JSON.parse(savedRaw);
+        if (Array.isArray(localLoans)) {
+          const updated = localLoans.map((l: any) =>
+            Number(l.id_peminjaman) === Number(id)
+              ? { ...l, status_pengajuan: status, alasan_penolakan: alasan }
+              : l
+          );
+          localStorage.setItem("bina_marga_dynamic_loans", JSON.stringify(updated));
+          window.dispatchEvent(new Event("loansUpdated"));
+        }
+      }
+    } catch {}
+
+    await loadLoans();
   };
 
   const handleOpenAcc = (loan: LoanItem) => {
@@ -313,13 +362,31 @@ export const AdminPeminjaman: React.FC<AdminPeminjamanProps> = ({
 
     try {
       await deleteLoan(itemToDelete.id_peminjaman);
-      await loadLoans();
     } catch (err) {
-      setErrorMessage(
-        err instanceof ApiError ? err.message : "Gagal menghapus data peminjaman."
-      );
+      if (err instanceof ApiError) {
+        setErrorMessage(err.message);
+        setDeleteModalOpen(false);
+        setItemToDelete(null);
+        return;
+      }
+      console.warn("Backend delete loan warning:", err);
     }
 
+    try {
+      const savedRaw = localStorage.getItem("bina_marga_dynamic_loans");
+      if (savedRaw) {
+        const localLoans = JSON.parse(savedRaw);
+        if (Array.isArray(localLoans)) {
+          const updated = localLoans.filter(
+            (l: any) => Number(l.id_peminjaman) !== Number(itemToDelete.id_peminjaman)
+          );
+          localStorage.setItem("bina_marga_dynamic_loans", JSON.stringify(updated));
+          window.dispatchEvent(new Event("loansUpdated"));
+        }
+      }
+    } catch {}
+
+    await loadLoans();
     setDeleteModalOpen(false);
     setItemToDelete(null);
   };

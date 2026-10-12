@@ -111,11 +111,11 @@ export const LoginAdmin: React.FC<LoginAdminProps> = ({
         </div>
 
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 sm:p-10 border border-gray-100 flex flex-col items-center relative z-20">
-          <div className="w-20 h-20 rounded-full bg-white shadow-md p-2 flex items-center justify-center mb-4 border border-gray-100">
+          <div className="h-16 px-4 py-2 rounded-2xl bg-white shadow-md flex items-center justify-center mb-4 border border-gray-100">
             <img
-              src="/images/logobina.png"
-              alt="Logo DPU Bina Marga"
-              className="w-full h-full object-contain"
+              src="/images/sipina_logo_cropped.png"
+              alt="Logo SIPINA"
+              className="h-12 w-auto object-contain"
             />
           </div>
 

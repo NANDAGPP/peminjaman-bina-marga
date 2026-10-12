@@ -168,7 +168,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
                     />
                   </div>
                   <span className="text-white leading-snug">
-                    Jl. Gayung Kebonsari No.167, Gayungan, Kec. Gayungan, Surabaya, Jawa Timur 60235
+                    Layanan SIPINA - Jl. Gayung Kebonsari No.167, Gayungan, Kec. Gayungan, Surabaya, Jawa Timur 60235
                   </span>
                 </li>
 
@@ -180,7 +180,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
                       className="w-5 h-5 object-contain"
                     />
                   </div>
-                  <span className="text-white font-semibold">031-8290186, 8280433</span>
+                  <span className="text-white font-semibold">031-8290186, +62-896-1254-8511 (SIPINA)</span>
                 </li>
 
                 <li className="flex items-center gap-3.5">
@@ -192,10 +192,10 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
                     />
                   </div>
                   <a
-                    href="mailto:binamarga@jatimprov.go.id"
+                    href="mailto:sipina@jatimprov.go.id"
                     className="text-white font-semibold hover:underline"
                   >
-                    binamarga@jatimprov.go.id
+                    sipina@jatimprov.go.id
                   </a>
                 </li>
 
@@ -219,7 +219,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
 
           <div className="hidden lg:flex items-center justify-end gap-3.5 absolute bottom-6 right-8 z-20">
             <a
-              href="https://x.com/dbmjatim"
+              href="https://x.com/sipina_jatim"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X Twitter"
@@ -233,7 +233,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
             </a>
 
             <a
-              href="https://www.instagram.com/binamargajatim?stkn=ZmMxcWYzbTB3Zjl1"
+              href="https://www.instagram.com/sipina_jatim"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Instagram"
@@ -247,7 +247,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
             </a>
 
             <a
-              href="https://youtube.com/@dbmjatim?si=qIWAAk8L5fMt3QQs"
+              href="https://youtube.com/@sipina_jatim"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="YouTube"
@@ -261,7 +261,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
             </a>
 
             <a
-              href="https://www.facebook.com/share/1EKHfjwTXG/"
+              href="https://www.facebook.com/sipina.jatim"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Facebook"
@@ -278,7 +278,7 @@ export const Pengaduan: React.FC<PengaduanProps> = ({ onNavigate, currentUser })
       </main>
 
       <footer className="w-full py-4 text-center text-xs text-gray-400 select-none">
-        DPU Bina Marga Provinsi Jawa Timur &copy; {new Date().getFullYear()}
+        SIPINA &copy; {new Date().getFullYear()} - Sistem Peminjaman Sarana dan Prasarana
       </footer>
 
       <PengaduanBerhasilModal

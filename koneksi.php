@@ -111,6 +111,46 @@ try {
             $pdo->exec("UPDATE admin SET role = 'super_admin' ORDER BY id_admin ASC LIMIT 1");
         }
     }
+
+    // Auto-check & pastikan kolom 'kapasitas' ada pada tabel 'kendaraan'
+    $hasKap = false;
+    if ($driver === 'pgsql') {
+        $checkKap = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'kendaraan' AND column_name = 'kapasitas'");
+        $hasKap = (bool)$checkKap->fetchColumn();
+    } else {
+        $checkKap = $pdo->query("SHOW COLUMNS FROM kendaraan LIKE 'kapasitas'");
+        $hasKap = (bool)$checkKap->fetch();
+    }
+    if (!$hasKap) {
+        $pdo->exec("ALTER TABLE kendaraan ADD COLUMN kapasitas VARCHAR(50) DEFAULT '5 Orang'");
+    }
+
+    // Auto-check & pastikan kolom 'bahan_bakar' ada pada tabel 'kendaraan'
+    $hasBBM = false;
+    if ($driver === 'pgsql') {
+        $checkBBM = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'kendaraan' AND column_name = 'bahan_bakar'");
+        $hasBBM = (bool)$checkBBM->fetchColumn();
+    } else {
+        $checkBBM = $pdo->query("SHOW COLUMNS FROM kendaraan LIKE 'bahan_bakar'");
+        $hasBBM = (bool)$checkBBM->fetch();
+    }
+    if (!$hasBBM) {
+        $pdo->exec("ALTER TABLE kendaraan ADD COLUMN bahan_bakar VARCHAR(50) DEFAULT 'Bensin / Pertamax'");
+    }
+
+    // Auto-check & pastikan kolom 'fasilitas' ada pada tabel 'ruangan'
+    $hasFas = false;
+    if ($driver === 'pgsql') {
+        $checkFas = $pdo->query("SELECT column_name FROM information_schema.columns WHERE table_name = 'ruangan' AND column_name = 'fasilitas'");
+        $hasFas = (bool)$checkFas->fetchColumn();
+    } else {
+        $checkFas = $pdo->query("SHOW COLUMNS FROM ruangan LIKE 'fasilitas'");
+        $hasFas = (bool)$checkFas->fetch();
+    }
+    if (!$hasFas) {
+        $pdo->exec("ALTER TABLE ruangan ADD COLUMN fasilitas VARCHAR(255) DEFAULT 'AC, Proyektor, Sound System, Meja & Kursi'");
+    }
 } catch (Throwable $e) {
-    // Jika tabel admin belum ada, akan dibuat oleh script instalasi
+    // Jika tabel belum ada, akan dibuat oleh script instalasi
 }
+

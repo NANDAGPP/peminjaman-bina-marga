@@ -197,6 +197,10 @@ export function fetchLoans() {
 export function createLoan(data: {
   jenis_aset: string;
   id_aset: number;
+  nama?: string;
+  plat?: string;
+  tipe?: string;
+  kode?: string;
   tanggal_mulai: string;
   tanggal_selesai: string;
   jam_mulai: string;

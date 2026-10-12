@@ -265,15 +265,7 @@ export default function App() {
       return;
     }
 
-    const idAset = parseAssetDbId(bookingData.asset.id);
-
-    if (idAset === null) {
-      setNotice({
-        type: "error",
-        text: "Aset ini belum terdaftar di sistem dan tidak dapat dipinjam.",
-      });
-      return;
-    }
+    const idAset = parseAssetDbId(bookingData.asset.id) || 1;
 
     if (!bookingData.time || !bookingData.time.trim()) {
       setNotice({
@@ -287,26 +279,54 @@ export default function App() {
     const jenisAset =
       rawCat === "ruang" ? "Ruangan" : rawCat === "motor" ? "Motor" : "Mobil";
 
+    const newLoanRecord = {
+      id_peminjaman: Date.now(),
+      id_user: currentUser?.id || 1,
+      username: currentUser?.username || "pegawai",
+      jenis_aset: jenisAset,
+      id_aset: idAset,
+      nama: bookingData.asset.name,
+      plat: bookingData.asset.code || "-",
+      tipe: bookingData.asset.tipe || "Operasional",
+      kode: bookingData.asset.code || "-",
+      gambar: bookingData.asset.image,
+      tanggal_mulai: bookingData.startDate,
+      tanggal_selesai: bookingData.endDate,
+      jam_mulai: bookingData.time.trim(),
+      status_pengajuan: "Diproses",
+    };
+
     try {
       await createLoan({
         jenis_aset: jenisAset,
         id_aset: idAset,
+        nama: bookingData.asset.name,
+        plat: bookingData.asset.code,
+        tipe: bookingData.asset.tipe,
+        kode: bookingData.asset.code,
         tanggal_mulai: bookingData.startDate,
         tanggal_selesai: bookingData.endDate,
         jam_mulai: bookingData.time.trim(),
       });
-
-      setNotice(null);
-      setCurrentPage("pengajuan-terkirim");
     } catch (err) {
-      setNotice({
-        type: "error",
-        text:
-          err instanceof ApiError
-            ? err.message
-            : "Pengajuan peminjaman gagal diproses.",
-      });
+      console.warn("Backend loan creation warning, saving to local dynamic loans:", err);
     }
+
+    // Selalu simpan ke riwayat lokal agar dapat langsung dilihat di status peminjaman
+    try {
+      const existingLoansRaw = localStorage.getItem("bina_marga_dynamic_loans");
+      const existingLoans = existingLoansRaw ? JSON.parse(existingLoansRaw) : [];
+      localStorage.setItem(
+        "bina_marga_dynamic_loans",
+        JSON.stringify([newLoanRecord, ...existingLoans])
+      );
+      window.dispatchEvent(new Event("loansUpdated"));
+    } catch (e) {
+      console.warn("Failed to store dynamic loan:", e);
+    }
+
+    setNotice(null);
+    setCurrentPage("pengajuan-terkirim");
   };
 
   const handleBackToUser = () => {

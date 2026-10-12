@@ -199,7 +199,7 @@ export const LaporanPengaduanModal: React.FC<LaporanPengaduanModalProps> = ({
   <table class="kop-table" style="width: 100%; border-collapse: collapse; margin-bottom: 2px;">
     <tr>
       <td class="kop-logo" style="width: 85px; vertical-align: middle; text-align: center; padding-right: 12px;">
-        <img src="${logoUrl}" alt="Logo Bina Marga" style="width: 70px; max-width: 70px; height: auto; display: block; margin: 0 auto;" />
+        <img src="${logoUrl}" alt="Logo SIPINA" style="width: 70px; max-width: 70px; height: auto; display: block; margin: 0 auto;" />
       </td>
       <td class="kop-text" style="vertical-align: middle; text-align: center;">
         <p class="kop-prov" style="font-size: 12.5pt; margin: 0 0 2px 0;">PEMERINTAH PROVINSI JAWA TIMUR</p>
@@ -243,7 +243,7 @@ export const LaporanPengaduanModal: React.FC<LaporanPengaduanModalProps> = ({
       <td class="ttd-cell-left" style="width: 55%; border: none;"></td>
       <td class="ttd-cell-right" style="width: 45%; text-align: right; border: none;">
         <p style="margin: 0;">Surabaya, ${escapeHtml(today)}</p>
-        <p style="margin: 4px 0 0 0;">Admin Pengelola Dinas PU Bina Marga</p>
+        <p style="margin: 4px 0 0 0;">Admin Pengelola Layanan SIPINA</p>
         <div class="ttd-space" style="height: 65px;"></div>
         <p class="ttd-name" style="margin: 0; font-weight: bold; text-decoration: underline;">(________________________)</p>
       </td>
@@ -347,8 +347,8 @@ export const LaporanPengaduanModal: React.FC<LaporanPengaduanModalProps> = ({
                 <tr>
                   <td className="w-20 align-middle text-center pr-3">
                     <img
-                      src="/images/logobina.png"
-                      alt="Logo Bina Marga"
+                      src="/images/sipina_logo_cropped.png"
+                      alt="Logo SIPINA"
                       style={{ width: "70px", height: "auto" }}
                       className="mx-auto object-contain"
                     />
@@ -440,7 +440,7 @@ export const LaporanPengaduanModal: React.FC<LaporanPengaduanModalProps> = ({
             <div className="flex justify-end mt-8 text-[10.5pt] leading-snug">
               <div className="text-right w-64">
                 <p>Surabaya, {today}</p>
-                <p className="font-medium mt-0.5">Admin Pengelola Dinas PU Bina Marga</p>
+                <p className="font-medium mt-0.5">Admin Pengelola Layanan SIPINA</p>
                 <div className="h-16"></div>
                 <p className="font-bold underline">(________________________)</p>
               </div>

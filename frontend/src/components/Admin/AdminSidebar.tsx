@@ -37,16 +37,16 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
       <div>
         <div className="flex items-center gap-3 pb-4 mb-4 border-b border-gray-200">
           <img
-            src="/images/logobina.png"
-            alt="Logo DPU Bina Marga"
-            className="w-9 h-10 object-contain shrink-0"
+            src="/images/sipina_logo_cropped.png"
+            alt="Logo SIPINA"
+            className="h-10 w-auto object-contain shrink-0"
           />
           <div className="flex flex-col leading-tight">
-            <span className="text-[10px] font-black tracking-tight text-[#071d63] uppercase">
-              DINAS PEKERJAAN UMUM BINA
+            <span className="text-[13px] font-black tracking-tight text-[#071d63] uppercase">
+              SIPINA
             </span>
-            <span className="text-[10px] font-black tracking-tight text-[#071d63] uppercase">
-              MARGA PROVINSI JAWA TIMUR
+            <span className="text-[9.5px] font-bold tracking-tight text-gray-500 uppercase">
+              Pengelolaan Aset
             </span>
           </div>
         </div>

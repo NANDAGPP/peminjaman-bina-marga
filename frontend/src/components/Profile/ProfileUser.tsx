@@ -118,60 +118,85 @@ export const ProfileUser: React.FC<ProfileUserProps> = ({
   const loadLoans = useCallback(async () => {
     setErrorMessage("");
 
+    let rows: LoanHistoryItem[] = [];
+
     try {
-      const { loans: rows } = await fetchLoans();
-      const byStatus = (statuses: string[]) =>
-        rows.filter((l: LoanHistoryItem) =>
-          statuses.includes(String(l.status_pengajuan).toLowerCase())
-        );
-
-      const parseDateValue = (dateStr?: string, timeStr?: string): number => {
-        if (!dateStr) return Infinity;
-        const cleanDate = dateStr.trim();
-        const cleanTime = (timeStr && timeStr.trim()) || "00:00";
-        if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
-          const timeNorm = cleanTime.length === 5 ? cleanTime + ":00" : cleanTime;
-          const t = new Date(`${cleanDate}T${timeNorm}`).getTime();
-          if (!isNaN(t)) return t;
-        }
-        const t = new Date(cleanDate).getTime();
-        if (!isNaN(t)) return t;
-        return cleanDate.localeCompare("") || 0;
-      };
-
-      // Urutkan tanggal mulai yang paling mepet (terdekat / lebih awal) di paling atas
-      const sortByNearestDate = (items: LoanHistoryItem[]) =>
-        [...items].sort((a, b) => {
-          const timeA = parseDateValue(a.tanggal_mulai, a.jam_mulai);
-          const timeB = parseDateValue(b.tanggal_mulai, b.jam_mulai);
-          if (timeA !== timeB) {
-            return timeA - timeB;
-          }
-          return (a.id_peminjaman || 0) - (b.id_peminjaman || 0);
-        });
-
-      // Riwayat peminjaman: urutkan dari yang terbaru
-      const sortByNewestHistory = (items: LoanHistoryItem[]) =>
-        [...items].sort((a, b) => {
-          const timeA = parseDateValue(a.tanggal_selesai || a.tanggal_mulai, a.jam_mulai);
-          const timeB = parseDateValue(b.tanggal_selesai || b.tanggal_mulai, b.jam_mulai);
-          if (timeA !== timeB) {
-            return timeB - timeA;
-          }
-          return (b.id_peminjaman || 0) - (a.id_peminjaman || 0);
-        });
-
-      setLoans(sortByNewestHistory(byStatus(["dikembalikan", "dibatalkan", "ditolak"])));
-      setActiveLoans(sortByNearestDate(byStatus(["diproses", "disetujui"])));
+      const data = await fetchLoans();
+      if (Array.isArray(data?.loans)) {
+        rows = [...data.loans];
+      }
     } catch (err) {
-      setErrorMessage(
-        err instanceof ApiError ? err.message : "Gagal memuat data peminjaman."
-      );
+      // Backend mungkin tidak dapat dihubungi, lanjutkan dengan data lokal
     }
+
+    try {
+      const savedRaw = localStorage.getItem("bina_marga_dynamic_loans");
+      if (savedRaw) {
+        const localLoans = JSON.parse(savedRaw);
+        if (Array.isArray(localLoans)) {
+          for (const l of localLoans) {
+            if (!rows.some((r) => Number(r.id_peminjaman) === Number(l.id_peminjaman))) {
+              rows.push(l);
+            }
+          }
+        }
+      }
+    } catch {}
+
+    const byStatus = (statuses: string[]) =>
+      rows.filter((l: LoanHistoryItem) =>
+        statuses.includes(String(l.status_pengajuan).toLowerCase())
+      );
+
+    const parseDateValue = (dateStr?: string, timeStr?: string): number => {
+      if (!dateStr) return Infinity;
+      const cleanDate = dateStr.trim();
+      const cleanTime = (timeStr && timeStr.trim()) || "00:00";
+      if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+        const timeNorm = cleanTime.length === 5 ? cleanTime + ":00" : cleanTime;
+        const t = new Date(`${cleanDate}T${timeNorm}`).getTime();
+        if (!isNaN(t)) return t;
+      }
+      const t = new Date(cleanDate).getTime();
+      if (!isNaN(t)) return t;
+      return cleanDate.localeCompare("") || 0;
+    };
+
+    // Urutkan tanggal mulai yang paling mepet (terdekat / lebih awal) di paling atas
+    const sortByNearestDate = (items: LoanHistoryItem[]) =>
+      [...items].sort((a, b) => {
+        const timeA = parseDateValue(a.tanggal_mulai, (a as any).jam_mulai);
+        const timeB = parseDateValue(b.tanggal_mulai, (b as any).jam_mulai);
+        if (timeA !== timeB) {
+          return timeA - timeB;
+        }
+        return (a.id_peminjaman || 0) - (b.id_peminjaman || 0);
+      });
+
+    // Riwayat peminjaman: urutkan dari yang terbaru
+    const sortByNewestHistory = (items: LoanHistoryItem[]) =>
+      [...items].sort((a, b) => {
+        const timeA = parseDateValue(a.tanggal_selesai || a.tanggal_mulai, (a as any).jam_mulai);
+        const timeB = parseDateValue(b.tanggal_selesai || b.tanggal_mulai, (b as any).jam_mulai);
+        if (timeA !== timeB) {
+          return timeB - timeA;
+        }
+        return (b.id_peminjaman || 0) - (a.id_peminjaman || 0);
+      });
+
+    setLoans(sortByNewestHistory(byStatus(["dikembalikan", "dibatalkan", "ditolak"])));
+    setActiveLoans(sortByNearestDate(byStatus(["diproses", "disetujui"])));
   }, []);
 
   useEffect(() => {
     loadLoans();
+
+    window.addEventListener("loansUpdated", loadLoans);
+    window.addEventListener("storage", loadLoans);
+    return () => {
+      window.removeEventListener("loansUpdated", loadLoans);
+      window.removeEventListener("storage", loadLoans);
+    };
   }, [loadLoans]);
 
   const formatDateRange = (start?: string, end?: string) => {

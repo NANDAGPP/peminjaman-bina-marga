@@ -5,12 +5,12 @@ import { LoadingScreen } from "../components/Common/LoadingScreen";
 import { CookieConsent } from "../components/Common/CookieConsent";
 
 describe("LoadingScreen Component", () => {
-  it("renders the loading screen with Bina Marga logo and text when isLoading is true", () => {
+  it("renders the loading screen with SIPINA logo and text when isLoading is true", () => {
     render(<LoadingScreen isLoading={true} minDuration={2000} />);
     
-    expect(screen.getByAltText(/Logo Dinas PU Bina Marga/i)).toBeInTheDocument();
-    expect(screen.getByText(/Dinas Pekerjaan Umum Bina Marga/i)).toBeInTheDocument();
-    expect(screen.getByText(/Memuat Sistem Peminjaman Aset.../i)).toBeInTheDocument();
+    expect(screen.getByAltText(/Logo SIPINA/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "SIPINA" })).toBeInTheDocument();
+    expect(screen.getByText(/Memuat Sistem SIPINA.../i)).toBeInTheDocument();
   });
 
   it("calls onFinish and hides after fading out when isLoading is false", () => {
@@ -20,7 +20,7 @@ describe("LoadingScreen Component", () => {
       <LoadingScreen isLoading={false} minDuration={100} onFinish={handleFinish} />
     );
 
-    expect(screen.getByAltText(/Logo Dinas PU Bina Marga/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/Logo SIPINA/i)).toBeInTheDocument();
 
     act(() => {
       vi.advanceTimersByTime(150); // triggers fadeOut

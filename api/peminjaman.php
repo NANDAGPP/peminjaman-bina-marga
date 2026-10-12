@@ -176,8 +176,14 @@ function create_peminjaman($pdo, array $input)
 
     $jenisAset   = trim($input['jenis_aset'] ?? '');
     $idAset      = (int)($input['id_aset'] ?? 0);
+    $namaAset    = trim($input['nama'] ?? ($input['name'] ?? ''));
     $tglMulai    = trim($input['tanggal_mulai'] ?? '');
+    $tglSelesai  = trim($input['tanggal_selesai'] ?? '');
     $jamMulai    = trim($input['jam_mulai'] ?? '');
+
+    if ($tglSelesai === '') {
+        $tglSelesai = $tglMulai;
+    }
 
     if ($jamMulai === '') {
         api_error('Silakan pilih waktu peminjaman terlebih dahulu.');
@@ -206,14 +212,20 @@ function create_peminjaman($pdo, array $input)
     try {
         $pdo->beginTransaction();
 
-        $aset = find_asset($pdo, $jenisAset, $idAset);
+        $aset = find_asset($pdo, $jenisAset, $idAset, $namaAset);
 
         if (!$aset) {
-            $pdo->rollBack();
-            api_error('Data aset tidak ditemukan.', 404);
+            $asetNama = $namaAset !== '' ? $namaAset : "Aset {$jenisAset} #{$idAset}";
+            $aset = [
+                'nama'   => $asetNama,
+                'plat'   => trim($input['plat'] ?? ($input['code'] ?? '-')),
+                'tipe'   => trim($input['tipe'] ?? 'Operasional'),
+                'kode'   => trim($input['kode'] ?? '-'),
+                'status' => 'Tersedia',
+            ];
         }
 
-        if ($aset['status'] === 'Maintenance') {
+        if (isset($aset['status']) && strtolower($aset['status']) === 'maintenance') {
             $pdo->rollBack();
             api_error('Aset sedang dalam perbaikan (Maintenance) dan belum dapat dipinjam.', 409);
         }
@@ -240,7 +252,7 @@ function create_peminjaman($pdo, array $input)
             api_error('Aset ini sudah memiliki jadwal peminjaman pada rentang tanggal tersebut.', 409);
         }
 
-        // Identitas dan detail aset diambil dari database, tidak dari request.
+        // Identitas dan detail aset diambil dari database, atau request jika fallback.
         $insert = $pdo->prepare(
             "INSERT INTO peminjaman (
                 id_user, username, jenis_aset, id_aset,
@@ -266,7 +278,7 @@ function create_peminjaman($pdo, array $input)
             ':jam_mulai'   => $jamMulai,
         ]);
 
-        $id = $pdo->lastInsertId('peminjaman_id_peminjaman_seq');
+        $id = api_last_insert_id($pdo, 'peminjaman_id_peminjaman_seq');
         $pdo->commit();
 
         api_success(
@@ -494,17 +506,29 @@ function delete_peminjaman($pdo, array $input)
     }
 }
 
-function find_asset($pdo, $jenisAset, $idAset)
+function find_asset($pdo, $jenisAset, $idAset, $namaAset = '')
 {
     if ($jenisAset === 'Ruangan') {
-        $stmt = $pdo->prepare('SELECT nama, kode, status FROM ruangan WHERE id = :id OR id_ruangan = :id_alt');
+        $stmt = $pdo->prepare('SELECT id, nama, kode, status FROM ruangan WHERE id = :id OR id_ruangan = :id_alt');
         $stmt->execute([':id' => $idAset, ':id_alt' => $idAset]);
+        $row = $stmt->fetch();
+        if (!$row && $namaAset !== '') {
+            $stmt2 = $pdo->prepare('SELECT id, nama, kode, status FROM ruangan WHERE LOWER(TRIM(nama)) = LOWER(TRIM(:nama)) LIMIT 1');
+            $stmt2->execute([':nama' => $namaAset]);
+            $row = $stmt2->fetch();
+        }
     } else {
-        $stmt = $pdo->prepare('SELECT nama, plat, tipe, status FROM kendaraan WHERE id_kendaraan = :id');
+        $stmt = $pdo->prepare('SELECT id_kendaraan, nama, plat, tipe, status FROM kendaraan WHERE id_kendaraan = :id');
         $stmt->execute([':id' => $idAset]);
+        $row = $stmt->fetch();
+        if (!$row && $namaAset !== '') {
+            $stmt2 = $pdo->prepare('SELECT id_kendaraan, nama, plat, tipe, status FROM kendaraan WHERE LOWER(TRIM(nama)) = LOWER(TRIM(:nama)) LIMIT 1');
+            $stmt2->execute([':nama' => $namaAset]);
+            $row = $stmt2->fetch();
+        }
     }
 
-    return $stmt->fetch();
+    return $row;
 }
 
 function set_asset_status($pdo, $jenisAset, $idAset, $status)

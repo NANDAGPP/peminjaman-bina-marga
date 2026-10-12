@@ -100,13 +100,13 @@ export const NavbarUser: React.FC<NavbarUserProps> = ({ activePage, onNavigate, 
           className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none"
         >
           <img
-            src="/images/logobina.png"
-            alt="Logo DPU Bina Marga Jawa Timur"
+            src="/images/sipina_logo_cropped.png"
+            alt="Logo SIPINA"
             className="h-8 sm:h-11 w-auto object-contain shrink-0"
           />
-          <div className="flex flex-col text-[#071d63] font-black text-[9.5px] sm:text-[11.5px] leading-tight tracking-tight uppercase [font-family:'Poppins',sans-serif]">
-            <span>Dinas Pekerjaan Umum Bina</span>
-            <span>Marga Provinsi Jawa Timur</span>
+          <div className="flex flex-col text-[#071d63] font-black leading-tight tracking-tight uppercase [font-family:'Poppins',sans-serif]">
+            <span className="text-[13px] sm:text-[15px] font-black tracking-wide">SIPINA</span>
+            <span className="text-[8.5px] sm:text-[9.5px] font-extrabold opacity-90">PEMINJAMAN ASET</span>
           </div>
         </div>
 

@@ -11,10 +11,10 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
         {/* Contact Info Items Separated by Dividers */}
         <div className="flex flex-wrap items-center gap-3 sm:gap-6 text-xs sm:text-[13px] font-normal text-white/95">
           <a
-            href="mailto:binamargajawatimur@gmail.com"
+            href="mailto:sipina@jatimprov.go.id"
             className="hover:text-[#fed000] hover:underline transition-colors"
           >
-            binamargajawatimur@gmail.com
+            sipina@jatimprov.go.id
           </a>
 
           <span className="text-white/40 select-none">|</span>
@@ -25,7 +25,7 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
             rel="noopener noreferrer"
             className="hover:text-[#fed000] hover:underline transition-colors"
           >
-            WA : +62-896-1254-8511
+            WA SIPINA : +62-896-1254-8511
           </a>
 
           <span className="text-white/40 select-none">|</span>
@@ -36,7 +36,7 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
             rel="noopener noreferrer"
             className="hover:text-[#fed000] hover:underline transition-colors"
           >
-            WA : +62-812-3456-7890
+            CS SIPINA : +62-812-3456-7890
           </a>
         </div>
 
@@ -46,10 +46,10 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
 
           {/* X / Twitter */}
           <a
-            href="https://x.com/dbmjatim"
+            href="https://x.com/sipina_jatim"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="X Twitter"
+            aria-label="X Twitter SIPINA"
             className="w-5 h-5 flex items-center justify-center hover:opacity-80 transition-opacity"
           >
             <img
@@ -64,10 +64,10 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
 
           {/* Instagram */}
           <a
-            href="https://www.instagram.com/binamargajatim?stkn=ZmMxcWYzbTB3Zjl1"
+            href="https://www.instagram.com/sipina_jatim"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Instagram"
+            aria-label="Instagram SIPINA"
             className="w-5 h-5 flex items-center justify-center hover:opacity-80 transition-opacity"
           >
             <img
@@ -82,10 +82,10 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
 
           {/* YouTube */}
           <a
-            href="https://youtube.com/@dbmjatim?si=qIWAAk8L5fMt3QQs"
+            href="https://youtube.com/@sipina_jatim"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="YouTube"
+            aria-label="YouTube SIPINA"
             className="w-5 h-5 flex items-center justify-center hover:opacity-80 transition-opacity"
           >
             <img
@@ -100,10 +100,10 @@ export const TopNavbarCTA: React.FC<TopNavbarCTAProps> = ({ className = "" }) =>
 
           {/* Facebook */}
           <a
-            href="https://www.facebook.com/share/1EKHfjwTXG/"
+            href="https://www.facebook.com/sipina.jatim"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Facebook"
+            aria-label="Facebook SIPINA"
             className="w-5 h-5 flex items-center justify-center hover:opacity-80 transition-opacity"
           >
             <img

@@ -60,10 +60,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         <div className="absolute -inset-2 rounded-full bg-[#071d63]/10 animate-pulse duration-700" />
 
         {/* Logo Container with Smooth Breathing Scale & Glow */}
-        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-white p-3 shadow-xl border border-gray-100 flex items-center justify-center animate-pulse">
+        <div className="relative w-44 sm:w-52 h-20 sm:h-24 rounded-3xl bg-white px-5 py-3 shadow-xl border border-gray-100 flex items-center justify-center animate-pulse">
           <img
-            src="/images/logobina.png"
-            alt="Logo Dinas PU Bina Marga Jawa Timur"
+            src="/images/sipina_logo_cropped.png"
+            alt="Logo SIPINA"
             className="w-full h-full object-contain drop-shadow-md"
           />
         </div>
@@ -71,10 +71,10 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         {/* Brand Text */}
         <div className="mt-6 text-center">
           <h2 className="text-base sm:text-lg font-black tracking-wider text-[#071d63] uppercase">
-            Dinas Pekerjaan Umum Bina Marga
+            SIPINA
           </h2>
           <p className="text-xs sm:text-sm font-bold text-gray-500 tracking-wide mt-0.5">
-            Provinsi Jawa Timur
+            Dinas Pekerjaan Umum Bina Marga Provinsi Jawa Timur
           </p>
         </div>
 
@@ -90,7 +90,7 @@ export const LoadingScreen: React.FC<LoadingScreenProps> = ({
         {/* Subtle Status Text */}
         <div className="flex items-center gap-1.5 mt-3 text-[11px] font-semibold text-gray-600">
           <span className="w-1.5 h-1.5 rounded-full bg-[#fed000] animate-ping" />
-          <span>Memuat Sistem Peminjaman Aset...</span>
+          <span>Memuat Sistem SIPINA...</span>
         </div>
       </div>
 

@@ -83,6 +83,16 @@ export const KelolaAsetTable: React.FC<KelolaAsetTableProps> = ({
   useEffect(() => {
     setCurrentPage(1);
     loadData();
+
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener("assetsUpdated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("assetsUpdated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
   }, [kategori]);
 
   const handleOpenAdd = () => {
@@ -138,7 +148,7 @@ export const KelolaAsetTable: React.FC<KelolaAsetTableProps> = ({
         prev.map((a) => (a.id === selectedItem.id ? updatedItem : a))
       );
     } else {
-      let assignedId = `${kategori}-${Date.now()}`;
+      let assignedId = kategori === "ruang" ? `r-${Date.now()}` : `k-${Date.now()}`;
       try {
         const res = await createAsset({
           category: kategori,

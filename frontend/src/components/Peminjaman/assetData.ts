@@ -22,10 +22,21 @@ export interface Asset {
  * atau "r-5" (ruangan); aset contoh bawaan seperti "mob-1" tidak punya
  * padanan di database sehingga mengembalikan null.
  */
-export function parseAssetDbId(id: string): number | null {
-  const match = /^[kr]-(\d+)$/.exec(String(id));
+export function parseAssetDbId(id: string | number): number | null {
+  if (typeof id === "number" && !isNaN(id) && id > 0) return id;
+  const str = String(id || "").trim();
+  if (!str) return 1;
 
-  return match ? Number(match[1]) : null;
+  // Format k-23, r-13
+  const matchKr = /^[kr]-(\d+)$/i.exec(str);
+  if (matchKr) return Number(matchKr[1]);
+
+  // Format mob-1, mot-2, ruang-3, mobil-1728
+  const matchDigits = /(\d+)$/.exec(str);
+  if (matchDigits) return Number(matchDigits[1]);
+
+  const num = parseInt(str, 10);
+  return !isNaN(num) && num > 0 ? num : 1;
 }
 
 export function sanitizeAssetImage(
@@ -58,26 +69,64 @@ export function sanitizeAssetImage(
 }
 
 const STORAGE_KEY = "bina_marga_dynamic_assets";
+const CUSTOM_STORAGE_KEY = "bina_marga_custom_assets";
 
-export function getStoredAssets(): Asset[] {
+export function getCustomAssets(): Asset[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(CUSTOM_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
+      if (Array.isArray(parsed)) {
         return parsed.map((a: Asset) => ({
           ...a,
           image: sanitizeAssetImage(a.image, a.category),
         }));
       }
     }
-  } catch {
-    // Fallback on storage read error
+  } catch {}
+  return [];
+}
+
+export function saveCustomAssets(assets: Asset[]): void {
+  try {
+    const sanitized = assets.map((a) => ({
+      ...a,
+      image: sanitizeAssetImage(a.image, a.category),
+    }));
+    localStorage.setItem(CUSTOM_STORAGE_KEY, JSON.stringify(sanitized));
+  } catch {}
+}
+
+export function getStoredAssets(): Asset[] {
+  const customs = getCustomAssets();
+  let base: Asset[] = [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        base = parsed.map((a: Asset) => ({
+          ...a,
+          image: sanitizeAssetImage(a.image, a.category),
+        }));
+      }
+    }
+  } catch {}
+
+  if (base.length === 0) {
+    base = ASSETS_DATA.map((a) => ({
+      ...a,
+      image: sanitizeAssetImage(a.image, a.category),
+    }));
   }
-  return ASSETS_DATA.map((a) => ({
-    ...a,
-    image: sanitizeAssetImage(a.image, a.category),
-  }));
+
+  const combined = [...customs];
+  for (const item of base) {
+    if (!combined.some((c) => c.id === item.id)) {
+      combined.push(item);
+    }
+  }
+  return combined;
 }
 
 export function saveStoredAssets(assets: Asset[]): void {
@@ -93,40 +142,64 @@ export function saveStoredAssets(assets: Asset[]): void {
 }
 
 export function addStoredAsset(asset: Asset): Asset[] {
-  const current = getStoredAssets();
   const sanitizedAsset: Asset = {
     ...asset,
     image: sanitizeAssetImage(asset.image, asset.category),
   };
+
+  const customs = getCustomAssets().filter((c) => c.id !== asset.id);
+  const nextCustoms = [sanitizedAsset, ...customs];
+  saveCustomAssets(nextCustoms);
+
+  const current = getStoredAssets().filter((c) => c.id !== asset.id);
   const updated = [sanitizedAsset, ...current];
   saveStoredAssets(updated);
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("assetsUpdated"));
+  }
   return updated;
 }
 
 export function updateStoredAsset(asset: Asset): Asset[] {
-  const current = getStoredAssets();
   const sanitizedAsset: Asset = {
     ...asset,
     image: sanitizeAssetImage(asset.image, asset.category),
   };
-  const updated = current.map((a) =>
+
+  const customs = getCustomAssets().map((a) =>
     a.id === asset.id ? { ...a, ...sanitizedAsset } : a
   );
-  saveStoredAssets(updated);
-  return updated;
+  saveCustomAssets(customs);
+
+  const current = getStoredAssets().map((a) =>
+    a.id === asset.id ? { ...a, ...sanitizedAsset } : a
+  );
+  saveStoredAssets(current);
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("assetsUpdated"));
+  }
+  return current;
 }
 
 export function deleteStoredAsset(assetId: string): Asset[] {
-  const current = getStoredAssets();
-  const updated = current.filter((a) => a.id !== assetId);
-  saveStoredAssets(updated);
-  return updated;
+  const customs = getCustomAssets().filter((a) => a.id !== assetId);
+  saveCustomAssets(customs);
+
+  const current = getStoredAssets().filter((a) => a.id !== assetId);
+  saveStoredAssets(current);
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("assetsUpdated"));
+  }
+  return current;
 }
 
 /**
  * Data aset selalu diambil dari server supaya status Tersedia/Dipinjam
- * mengikuti persetujuan admin terbaru. Salinan di localStorage hanya
- * dipakai saat server tidak dapat dihubungi.
+ * mengikuti persetujuan admin terbaru. Aset kustom lokal selalu digabung
+ * agar penambahan aset baru tetap tersimpan.
  */
 export async function fetchDynamicAssets(): Promise<Asset[]> {
   try {
@@ -185,8 +258,17 @@ export async function fetchDynamicAssets(): Promise<Asset[]> {
       });
     }
 
-    saveStoredAssets(list);
-    return list;
+    // Gabungkan dengan aset kustom lokal agar tidak tertimpa/terhapus
+    const customs = getCustomAssets();
+    const merged = [...customs];
+    for (const item of list) {
+      if (!merged.some((m) => m.id === item.id || (m.code && m.code !== "-" && m.code === item.code))) {
+        merged.push(item);
+      }
+    }
+
+    saveStoredAssets(merged);
+    return merged;
   } catch {
     return getStoredAssets();
   }

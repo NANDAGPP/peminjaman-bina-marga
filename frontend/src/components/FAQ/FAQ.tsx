@@ -129,7 +129,7 @@ export const FAQ: React.FC<FAQProps> = ({ onNavigate, currentUser }) => {
 
       {/* Footer spacer */}
       <footer className="w-full py-4 text-center text-xs text-gray-400 select-none">
-        DPU Bina Marga Provinsi Jawa Timur &copy; {new Date().getFullYear()}
+        SIPINA &copy; {new Date().getFullYear()} - Sistem Peminjaman Sarana dan Prasarana
       </footer>
     </div>
   );
